@@ -21,10 +21,11 @@ jobs:
       # 2. 运行一个 Linux 命令：检查代码里有没有 "TODO" 这个词
       - name: Run Quality Check
         run: |
-          echo "🚀 正在启动流水线，开始检查代码质量..."
-          if grep -r "TODO" .; then
-            echo "❌ 发现代码里包含 TODO，质检不通过！"
+          echo "🚀 Starting code quality check..."
+          # 扫描时排除 .git 目录、hello.yml 配置文件本身，以及系统文件
+          if grep -r "TODO" . --exclude-dir=".git" --exclude="hello.yml" --exclude="sendemail-validate.sample" ; then
+            echo "❌ Found TODO in your code!"
             exit 1
           else
-            echo "✅ 代码非常完美，没有偷懒标记！"
+            echo "✅ No TODO found. Code quality passed!"
           fi
