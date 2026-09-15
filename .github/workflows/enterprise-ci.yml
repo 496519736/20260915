@@ -1,0 +1,44 @@
+name: Enterprise CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  quality-gates:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest coverage bandit pip-audit
+
+      # 门禁 1：安全漏洞扫描 (代码层面)
+      - name: Security Scan (Bandit)
+        run: |
+          echo "🔍 正在扫描代码安全漏洞..."
+          bandit -r app.py
+
+      # 门禁 2：依赖包漏洞扫描
+      - name: Dependency Audit (pip-audit)
+        run: |
+          echo "📦 正在扫描第三方依赖漏洞..."
+          pip-audit
+
+      # 门禁 3：测试通过率与覆盖率
+      - name: Test & Coverage Check
+        run: |
+          echo "🧪 正在运行测试与覆盖率检查..."
+          # 运行测试并生成覆盖率报告，要求总覆盖率必须达到 90%
+          coverage run -m pytest test_app.py
+          coverage report -m --fail-under=90
