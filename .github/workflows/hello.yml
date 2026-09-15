@@ -1,0 +1,30 @@
+# 给这条流水线起个名字
+name: My First CI/CD Pipeline
+
+# 触发条件：当你向 main 分支推送代码时，流水线自动启动
+on:
+  push:
+    branches: [ "main" ]
+
+# 流水线里的具体任务
+jobs:
+  code-quality-check:
+    # 运行在 GitHub 提供的免费 Linux 虚拟机上
+    runs-on: ubuntu-latest
+    
+    # 流水线里的具体步骤
+    steps:
+      # 1. 把你的代码下载到流水线机器上
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 2. 运行一个 Linux 命令：检查代码里有没有 "TODO" 这个词
+      - name: Run Quality Check
+        run: |
+          echo "🚀 正在启动流水线，开始检查代码质量..."
+          if grep -r "TODO" .; then
+            echo "❌ 发现代码里包含 TODO，质检不通过！"
+            exit 1
+          else
+            echo "✅ 代码非常完美，没有偷懒标记！"
+          fi
